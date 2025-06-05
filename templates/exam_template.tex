@@ -1,0 +1,29 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{ {{ variant_id }}}
+\lhead{ {{ title }} }
+\rfoot{Page \thepage}
+
+\begin{document}
+
+\begin{center}
+    \Large\textbf{Quiz Questions -- {{ variant_id }}}
+\end{center}
+
+\begin{enumerate}
+{% for q in questions %}
+    \item {{ q.text }}
+    \begin{enumerate}[label=(\Alph*)]
+        {% for opt in q.options %}
+        \item {{ opt }}
+        {% endfor %}
+    \end{enumerate}
+{% endfor %}
+\end{enumerate}
+
+\end{document}
