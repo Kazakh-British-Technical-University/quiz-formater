@@ -3,7 +3,8 @@ from src.question_ops import generate_exam_variants
 from src.latex_generator import render_latex_with_jinja
 import typer
 import configparser
-import os
+
+from src.utils import format_title
 
 # Load configuration
 config = configparser.ConfigParser()
@@ -28,11 +29,13 @@ def create_exam(
 ):
     df = read_questions(input_path)
     variants = generate_exam_variants(df, num_variants, max_questions)
+    filename = format_title(input_path)
+
 
     for name, v_df in variants.items():
-        tex_path = f"{config['DEFAULT']['output_dir']}/tex/exam_sheet_{name}.tex"
+        tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_{name}.tex"
 
-        save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{name}.csv") # CSV
+        save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{filename}_{name}.csv") 
         render_latex_with_jinja(v_df, "templates/exam_template.tex", tex_path, name)
 
     typer.echo("✅ Exams and LaTeX files created.")
