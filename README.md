@@ -1,49 +1,104 @@
-# Question Exam Tool
+# Quiz Converter
 
-A Python CLI tool to generate exam variants from an Excel or CSV question bank with LaTeX output support.
+A Python tool for converting quiz questions from CSV format to LaTeX and PDF exam variants.
 
 ## Features
 
-- Group-based question selection
-- Filtering and randomization
-- LaTeX exam sheet generation
-- Multiple variant support
+- Converts quiz questions from CSV to LaTeX format
+- Generates multiple exam variants with randomized questions
+- Supports PDF generation from LaTeX files
+- Configurable number of variants and questions per variant
+- Customizable output formats (CSV, LaTeX, PDF)
 
-# Requirements
+## Installation
 
-1. Install required Python packages via requirements.txt:
-2. Install Tectonic and add to system PATH: https://github.com/tectonic-typesetting/tectonic/releases
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/QuizConverter.git
+cd QuizConverter
+```
+
+2. Create and activate a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 
-```bash
-python main.py data/input/test.csv --num-variants 3
-```
+### Basic Usage
+
+Run the script with default settings:
 
 ```bash
-tectonic data/output/tex/exam_sheet_Variant_1.tex --outdir=data/output/pdf/
+python main.py
 ```
 
+This will:
+
+- Read questions from `data/input/test.csv`
+- Generate 3 exam variants
+- Create up to 10 questions per variant
+- Generate both LaTeX and PDF files
+
+### Command Line Options
+
+You can customize the behavior using command line options:
+
+```bash
+python main.py --input-path "path/to/your/input.csv" --num-variants 5 --max-questions 15 --should-generate-pdf
 ```
-Quiz-formater/
-├── main.py                  # Entry point to run the project
-├── requirements.txt         # Dependencies
-├── README.md
-├── config/                  # TODO
-│   └── settings.yaml        # Optional settings (e.g., output paths, filters)
-├── data/
-│   ├── input/
-│       ├── test.csv
-│   └── output/
-│       ├── csv/             # Dataframe of variants
-│       ├── tex/             # Latex template of variants
-│       ├── pdf/             # Generated PDF from Latex
-├── src/
-│   ├── __init__.py
-│   ├── io_handler.py        # Read/write Excel/CSV
-│   ├── question_ops.py      # Filtering, shuffling, tagging, etc.
-│   └── latex_generator.py   # Generate LaTeX exam sheet
-│   └── pdf_generator.py     # Generate PDF from Latex
-└── templates/
-    └── exam_template.tex    # Jinja2 LaTeX template
+
+Available options:
+
+- `--input-path`: Path to the input CSV file
+- `--num-variants`: Number of exam variants to generate
+- `--max-questions`: Maximum number of questions per variant
+- `--should-generate-pdf`: Whether to generate PDF files (True/False)
+
+### Configuration File
+
+You can also modify the default settings in `config.ini`:
+
+```ini
+[DEFAULT]
+input_path = data/input/test.csv
+output_dir = data/output
+num_variants = 3
+max_questions = 10
+should_generate_pdf = True
+
+[TECTONIC]
+output_dir = data/output/pdf
+quiet_mode = true
 ```
+
+## Input Format
+
+The input CSV file should contain the following columns:
+
+- Question text
+- Correct answer
+- Additional options (if any)
+
+## Output
+
+The tool generates the following files in the `data/output` directory:
+
+- CSV files: `csv/filename_variantX.csv`
+- LaTeX files: `tex/filename_variantX.tex`
+- PDF files: `pdf/filename_variantX.pdf` (if PDF generation is enabled)
+
+## Requirements
+
+- Python 3.6+
+- Dependencies listed in `requirements.txt`
+- Tectonic (for PDF generation) - Make sure it's added to your system PATH
