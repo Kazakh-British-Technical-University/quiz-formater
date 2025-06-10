@@ -6,12 +6,50 @@ import typer
 import configparser
 import shutil
 import os
+from pathlib import Path
+import sys
 
 from src.utils import format_title
 
+# Default configuration
+DEFAULT_CONFIG = {
+    'DEFAULT': {
+        'input_path': 'data/input/test.csv',
+        'output_dir': 'data/output',
+        'num_variants': '3',
+        'max_questions': '10',
+        'should_generate_pdf': 'True',
+        'template_path': 'templates/test.tex'
+    },
+    'TECTONIC': {
+        'output_dir': 'data/output/pdf',
+        'quiet_mode': 'true'
+    }
+}
+
+def get_base_path():
+    """Get the base path for the application."""
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable
+        return Path(sys._MEIPASS)
+    else:
+        # Running as script
+        return Path.cwd()
+
+def get_config():
+    """Get configuration from file or use defaults."""
+    config = configparser.ConfigParser()
+    config.read_dict(DEFAULT_CONFIG)
+    
+    # Try to read config.ini from the executable's directory
+    config_path = get_base_path() / 'config.ini'
+    if config_path.exists():
+        config.read(config_path)
+    
+    return config
+
 # Load configuration
-config = configparser.ConfigParser()
-config.read('config.ini')
+config = get_config()
 
 app = typer.Typer()
 
@@ -38,6 +76,15 @@ def create(
         help="Path to the LaTeX template file"
     )
 ):
+    # Create output directories if they don't exist
+    output_dir = Path(config['DEFAULT']['output_dir'])
+    for subdir in ['csv', 'pdf', 'tex']:
+        (output_dir / subdir).mkdir(parents=True, exist_ok=True)
+    
+    # Resolve template path
+    if not os.path.isabs(t):
+        t = str(get_base_path() / t)
+    
     df = read_questions(i)
     variants = generate_exam_variants(df, n, m)
     filename = format_title(i)
@@ -54,7 +101,6 @@ def create(
     typer.echo("✅ Exams and LaTeX files created.")
     if p:
         typer.echo("✅ PDF files generated.")
-    
 
 @app.command()
 def clean(
