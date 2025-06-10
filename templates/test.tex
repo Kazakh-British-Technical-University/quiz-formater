@@ -1,0 +1,40 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{parskip} % For spacing between paragraphs
+\usepackage{multicol} % Optional: use for multi-column options
+
+% Header/Footer setup
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ {{ title }} }
+\rhead{Variant {{ variant_id }}}
+\rfoot{Page \thepage}
+
+% Reduce space before enumerate
+\setlist[enumerate]{itemsep=0.4em, topsep=0.5em}
+
+\begin{document}
+
+\begin{center}
+    \Large\textbf{Quiz: {{ title }}}
+\end{center}
+
+\vspace{1em}
+
+\begin{enumerate}
+{% for q in questions %}
+    \item \textbf{{ '{' }}{{ q.text }}{{ '}' }}
+    
+    \begin{enumerate}[label=(\Alph*), leftmargin=2em]
+        {% for opt in q.options %}
+            \item {{ opt }}
+        {% endfor %}
+    \end{enumerate}
+
+    \vspace{0.5em}
+{% endfor %}
+\end{enumerate}
+
+\end{document}

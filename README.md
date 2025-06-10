@@ -54,15 +54,48 @@ This will:
 You can customize the behavior using command line options:
 
 ```bash
+# Using short parameter names
+python main.py -i "path/to/your/input.csv" -n 5 -m 15 -p
+
+# Or using long parameter names
 python main.py --input-path "path/to/your/input.csv" --num-variants 5 --max-questions 15 --should-generate-pdf
 ```
 
 Available options:
 
-- `--input-path`: Path to the input CSV file
-- `--num-variants`: Number of exam variants to generate
-- `--max-questions`: Maximum number of questions per variant
-- `--should-generate-pdf`: Whether to generate PDF files (True/False)
+| Short | Long                    | Description                                |
+| ----- | ----------------------- | ------------------------------------------ |
+| `-i`  | `--input-path`          | Path to the input CSV file                 |
+| `-n`  | `--num-variants`        | Number of exam variants to generate        |
+| `-m`  | `--max-questions`       | Maximum number of questions per variant    |
+| `-p`  | `--should-generate-pdf` | Whether to generate PDF files (True/False) |
+| `-t`  | `--template-path`       | Path to the LaTeX template file            |
+
+Example usage with template:
+
+```bash
+# Use default template from config.ini
+python main.py -i input.csv -n 3 -m 10 -p
+
+# Use custom template
+python main.py -i input.csv -n 3 -m 10 -p -t "templates/custom_template.tex"
+```
+
+### Cleaning Output Directories
+
+To clean up generated files, use the clean command:
+
+```bash
+# Clean all output directories (csv, pdf, tex)
+python main.py clean
+
+# Clean specific directory type
+python main.py clean -d csv    # Clean only CSV files
+python main.py clean -d pdf    # Clean only PDF files
+python main.py clean -d tex    # Clean only LaTeX files
+```
+
+The clean command will remove all files in the specified directory and recreate the empty directory structure.
 
 ### Configuration File
 
