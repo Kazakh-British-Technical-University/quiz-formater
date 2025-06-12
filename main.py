@@ -19,12 +19,10 @@ DEFAULT_CONFIG = {
         'num_variants': '3',
         'max_questions': '10',
         'should_generate_pdf': 'True',
-        'template_path': 'templates/test.tex'
+        'should_generate_csv': 'False',
+        'template_path': 'templates/test.tex',
+        'engine' : 'tectonic'
     },
-    'TECTONIC': {
-        'output_dir': 'data/output/pdf',
-        'quiet_mode': 'true'
-    }
 }
 
 def get_base_path():
@@ -71,9 +69,17 @@ def create(
         default=config.getboolean('DEFAULT', 'should_generate_pdf', fallback=False),
         help="Whether to generate PDF files from LaTeX"
     ),
+    c: bool = typer.Option( # Generate csv
+        default=config.getboolean('DEFAULT', 'should_generate_csv', fallback=False),
+        help="Whether to generate CSV files with variants"
+    ),
     t: str = typer.Option( # Template path
         default=config['DEFAULT']['template_path'],
         help="Path to the LaTeX template file"
+    ),
+    e: str = typer.Option( # Latex Engine to use
+        default=config['DEFAULT']['engine'],
+        help="LaTeX engine to use for PDF generation (tectonic/pdflatex)"
     )
 ):
     # Create output directories if they don't exist
@@ -92,13 +98,14 @@ def create(
     for name, v_df in variants.items():
         tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_{name}.tex"
 
-        save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{filename}_{name}.csv") 
+        if c:
+            save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{filename}_{name}.csv") 
         
         if p:
             render_latex_with_jinja(v_df, t, tex_path, name)
-            generate_pdf(tex_path, config)
+            generate_pdf(tex_path, config, e)
 
-    typer.echo("✅ Exams and LaTeX files created.")
+    typer.echo("✅ Exam variants created successfully")
     if p:
         typer.echo("✅ PDF files generated.")
 
