@@ -1,6 +1,6 @@
 from src.io_handler import read_questions, save_questions
 from src.question_ops import generate_exam_variants
-from src.latex_generator import render_latex_with_jinja
+from src.latex_generator import render_latex_with_jinja, render_all_variants_answers, render_all_variants_exam
 from src.pdf_generator import generate_pdf
 import typer
 import configparser
@@ -21,6 +21,7 @@ DEFAULT_CONFIG = {
         'should_generate_pdf': 'True',
         'should_generate_csv': 'False',
         'template_path': 'templates/test.tex',
+        'answers_template_path': 'templates/answers.tex',
         'engine' : 'tectonic'
     },
 }
@@ -80,6 +81,10 @@ def create(
     e: str = typer.Option( # Latex Engine to use
         default=config['DEFAULT']['engine'],
         help="LaTeX engine to use for PDF generation (tectonic/pdflatex)"
+    ),
+    out: str = typer.Option(
+        default="single",
+        help="Output mode: 'multiple' (separate files), 'single' (all-in-one), or 'both'",
     )
 ):
     # Create output directories if they don't exist
@@ -87,27 +92,47 @@ def create(
     for subdir in ['csv', 'pdf', 'tex']:
         (output_dir / subdir).mkdir(parents=True, exist_ok=True)
     
-    # Resolve template path
+    # Resolve template paths
     if not os.path.isabs(t):
         t = str(get_base_path() / t)
+    answers_template = str(get_base_path() / config['DEFAULT']['answers_template_path'])
     
     df = read_questions(i)
     variants = generate_exam_variants(df, n, m)
     filename = format_title(i)
 
-    for name, v_df in variants.items():
-        tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_{name}.tex"
+    # MULTIPLE mode: generate per-variant files
+    if out in ["multiple", "both"]:
+        for name, v_df in variants.items():
+            tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_{name}.tex"
+            answers_tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_{name}_answers.tex"
 
-        if c:
-            save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{filename}_{name}.csv") 
-        
-        if p:
-            render_latex_with_jinja(v_df, t, tex_path, name)
-            generate_pdf(tex_path, config, e)
+            if c:
+                save_questions(v_df, f"{config['DEFAULT']['output_dir']}/csv/{filename}_{name}.csv") 
+            
+            if p:
+                # Generate test variant
+                render_latex_with_jinja(v_df, t, tex_path, name)
+                generate_pdf(tex_path, config, e)
+                # Generate answer sheet
+                render_latex_with_jinja(v_df, answers_template, answers_tex_path, name)
+                generate_pdf(answers_tex_path, config, e)
+
+    # SINGLE mode: generate all-variants-in-one files
+    if out in ["single", "both"] and p:
+        all_answers_template = str(get_base_path() / "templates/answers_all_variants.tex")
+        all_answers_tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_ALL_VARIANTS_answers.tex"
+        render_all_variants_answers(variants, all_answers_template, all_answers_tex_path)
+        generate_pdf(all_answers_tex_path, config, e)
+
+        all_exam_template = str(get_base_path() / "templates/variants_all_in_one.tex")
+        all_exam_tex_path = f"{config['DEFAULT']['output_dir']}/tex/{filename}_ALL_VARIANTS_exam.tex"
+        render_all_variants_exam(variants, all_exam_template, all_exam_tex_path)
+        generate_pdf(all_exam_tex_path, config, e)
 
     typer.echo("✅ Exam variants created successfully")
     if p:
-        typer.echo("✅ PDF files generated.")
+        typer.echo("✅ PDF files generated (including answer sheets).")
 
 @app.command()
 def clean(

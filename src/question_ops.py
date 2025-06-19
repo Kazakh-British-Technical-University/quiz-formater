@@ -16,6 +16,9 @@ def generate_variant(df, variant_id=1, seed=None, max_questions=None):
     if max_questions and len(result) > max_questions:
         result = result.sample(max_questions, random_state=seed + variant_id if seed else None)
     
+    # Add answer information
+    result['answer'] = result['Answer']
+    
     return result
 
 def generate_exam_variants(df, num_variants=2, max_questions=None, seed=None):

@@ -1,0 +1,49 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+
+% Header/Footer setup
+\pagestyle{fancy}
+
+\newcommand{\VariantSpacing}{20pt} % Default, can be replaced via Jinja
+
+\begin{document}
+
+{% for variant in variants %}
+    % Set header for this variant
+    \fancyhf{}
+    \lhead{ {{ title }} }
+    \rhead{Variant {{ variant.variant_id }}}
+    \rfoot{Page \thepage}
+
+    \begin{center}
+        \Large\textbf{Quiz: {{ title }}}
+    \end{center}
+
+    \vspace{1em}
+    \begin{center}
+        \Large\textbf{Variant {{ variant.variant_id }}}
+    \end{center}
+    \vspace{1em}
+
+    \begin{enumerate}
+    {% for q in variant.questions %}
+        \item \textbf{{ '{' }}{{ q.text }}{{ '}' }}
+        \begin{enumerate}[label=(\Alph*), leftmargin=2em]
+            {% for opt in q.options %}
+                \item {{ opt }}
+            {% endfor %}
+        \end{enumerate}
+        \vspace{0.5em}
+    {% endfor %}
+    \end{enumerate}
+
+    {% if not loop.last %}
+        \vspace*{\VariantSpacing}
+        \newpage
+    {% endif %}
+{% endfor %}
+
+\end{document} 

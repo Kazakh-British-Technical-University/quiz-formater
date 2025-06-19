@@ -7,7 +7,8 @@ def render_latex_with_jinja(df, template_path, output_path, variant_id=1):
     for _, row in df.iterrows():
         questions.append({
             "text": escape_latex(row["Question Text"]),
-            "options": [escape_latex(row["Option A"]), escape_latex(row["Option B"]), escape_latex(row["Option C"]), escape_latex(row["Option D"])]
+            "options": [escape_latex(row["Option A"]), escape_latex(row["Option B"]), escape_latex(row["Option C"]), escape_latex(row["Option D"])],
+            "answer": escape_latex(row["answer"]) if "answer" in row else ""
         })
 
     env = Environment(loader=FileSystemLoader(searchpath=os.path.dirname(template_path)))
@@ -26,4 +27,82 @@ def render_latex_with_jinja(df, template_path, output_path, variant_id=1):
         f.write(rendered)
 
     print(f"LaTeX generated at {output_path}")
+    return rendered
+
+def render_all_variants_answers(variants_dict, template_path, output_path):
+    """
+    Render a LaTeX file with answers for all variants, each on a new page.
+    variants_dict: dict of {variant_id: DataFrame}
+    template_path: path to the Jinja2 LaTeX template
+    output_path: where to write the .tex file
+    """
+    all_variants = []
+    for variant_id, df in variants_dict.items():
+        questions = []
+        for _, row in df.iterrows():
+            questions.append({
+                "text": escape_latex(row["Question Text"]),
+                "options": [escape_latex(row["Option A"]), escape_latex(row["Option B"]), escape_latex(row["Option C"]), escape_latex(row["Option D"])],
+                "answer": escape_latex(row["answer"]) if "answer" in row else ""
+            })
+        all_variants.append({
+            "variant_id": variant_id,
+            "questions": questions
+        })
+
+    env = Environment(loader=FileSystemLoader(searchpath=os.path.dirname(template_path)))
+    template = env.get_template(os.path.basename(template_path))
+
+    # Use the output filename as the quiz title
+    title = format_title(output_path)
+
+    rendered = template.render(
+        title=title,
+        variants=all_variants
+    )
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(rendered)
+
+    print(f"All-variants answers LaTeX generated at {output_path}")
+    return rendered
+
+def render_all_variants_exam(variants_dict, template_path, output_path, variant_spacing="20pt"):
+    """
+    Render a LaTeX file with all exam variants, each on a new page, with tweakable spacing.
+    variants_dict: dict of {variant_id: DataFrame}
+    template_path: path to the Jinja2 LaTeX template
+    output_path: where to write the .tex file
+    variant_spacing: vertical space (LaTeX length, e.g., '20pt') between variants
+    """
+    all_variants = []
+    for variant_id, df in variants_dict.items():
+        questions = []
+        for _, row in df.iterrows():
+            questions.append({
+                "text": escape_latex(row["Question Text"]),
+                "options": [escape_latex(row["Option A"]), escape_latex(row["Option B"]), escape_latex(row["Option C"]), escape_latex(row["Option D"])],
+                "answer": escape_latex(row["answer"]) if "answer" in row else ""
+            })
+        all_variants.append({
+            "variant_id": variant_id,
+            "questions": questions
+        })
+
+    env = Environment(loader=FileSystemLoader(searchpath=os.path.dirname(template_path)))
+    template = env.get_template(os.path.basename(template_path))
+
+    # Use the output filename as the quiz title
+    title = format_title(output_path)
+
+    rendered = template.render(
+        title=title,
+        variants=all_variants,
+        VariantSpacing=variant_spacing
+    )
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(rendered)
+
+    print(f"All-variants exam LaTeX generated at {output_path}")
     return rendered

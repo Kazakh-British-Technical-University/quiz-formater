@@ -1,0 +1,41 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+
+% Header/Footer setup
+\pagestyle{fancy}
+
+\begin{document}
+
+{% for variant in variants %}
+    % Set header for this variant
+    \fancyhf{}
+    \lhead{Answers}
+    \rhead{Variant {{ variant.variant_id }}}
+    \rfoot{Page \thepage}
+
+    \begin{center}
+        \Large\textbf{Answers for Quiz: {{ title }}}
+    \end{center}
+
+    \vspace{1em}
+
+    \begin{center}
+        \Large\textbf{Variant {{ variant.variant_id }}}
+    \end{center}
+
+    \vspace{1em}
+
+    \begin{enumerate}
+    {% for q in variant.questions %}
+        \item {{ q.answer }}
+    {% endfor %}
+    \end{enumerate}
+
+    {% if not loop.last %}
+        \newpage
+    {% endif %}
+{% endfor %}
+
+\end{document} 
