@@ -5,9 +5,20 @@ from .utils import escape_latex, format_title
 def render_latex_with_jinja(df, template_path, output_path, variant_id=1):
     questions = []
     for _, row in df.iterrows():
+        for item in row:
+            if item == item:
+                print(item)
+
+        option_keys = sorted(
+            (key for key in row.keys() if key.startswith("Option ") and row[key] == row[key]),
+            key=lambda k: int(k.split(" ")[1]) if k.split(" ")[1].isdigit() else k.split(" ")[1]
+        )
+
+        options = [escape_latex(row[key]) for key in option_keys]
+
         questions.append({
             "text": escape_latex(row["Question Text"]),
-            "options": [escape_latex(row["Option A"]), escape_latex(row["Option B"]), escape_latex(row["Option C"]), escape_latex(row["Option D"])],
+            "options": options,
             "answer": escape_latex(row["answer"]) if "answer" in row else ""
         })
 
