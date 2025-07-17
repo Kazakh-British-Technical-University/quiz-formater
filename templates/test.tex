@@ -1,40 +1,49 @@
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 \usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
 \usepackage{parskip} % For spacing between paragraphs
-\usepackage{multicol} % Optional: use for multi-column options
+\usepackage{multicol} % Multi-column layout
+\usepackage{fontspec}
+\usepackage{calc}
+\setmainfont{Times New Roman}
 
 % Header/Footer setup
-\pagestyle{fancy}
-\fancyhf{}
-\lhead{ {{ title }} }
-\rhead{Variant {{ variant_id }}}
-\rfoot{Page \thepage}
+\pagestyle{empty}
 
 % Reduce space before enumerate
-\setlist[enumerate]{itemsep=0.4em, topsep=0.5em}
+\setlist[enumerate]{itemsep=0.1em, topsep=0.2em}
 
 \begin{document}
 
 \begin{center}
-    \Large\textbf{Quiz: {{ title }}}
+        \includegraphics[width=0.2\textwidth]{KBTU_LOGO_short-blue.png} \par
+        \large Kazakh-British Technical University \par
+        \large School of Information Technologies and Engineering \par
+    	\Large\textbf{Quiz: {{ title }}}
 \end{center}
 
 \vspace{1em}
 
+\begin{multicols*}{2}
 \begin{enumerate}
 {% for q in questions %}
-    \item \textbf{{ '{' }}{{ q.text }}{{ '}' }}
-    
-    \begin{enumerate}[label=(\Alph*), leftmargin=2em]
-        {% for opt in q.options %}
-            \item {{ opt }}
-        {% endfor %}
-    \end{enumerate}
+    \begin{minipage}{0.9\columnwidth}
+        \item {\raggedright \textbf{ {{ q.text }} } \par}
+        
+        {% if q.options and q.options|length > 0 %}
+            \begin{enumerate}[label=(\Alph*), leftmargin=2em]
+                {% for opt in q.options %}
+                    \item {{ opt }}
+                {% endfor %}
+            \end{enumerate}
+        {% endif %}
+    \end{minipage}
 
-    \vspace{0.5em}
+    \vspace{0.2em}
 {% endfor %}
 \end{enumerate}
+\end{multicols*}
 
 \end{document}
