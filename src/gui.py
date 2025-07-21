@@ -56,6 +56,34 @@ class MainWindow(QMainWindow):
         max_questions_layout.addWidget(max_questions_label)
         max_questions_layout.addWidget(self.max_questions_spin)
         layout.addLayout(max_questions_layout)
+
+        # Start index
+        start_index_layout = QHBoxLayout()
+        start_index_label = QLabel("Start index:")
+        self.start_index_spin = QSpinBox()
+        start_index_layout.addWidget(start_index_label)
+        start_index_layout.addWidget(self.start_index_spin)
+        layout.addLayout(start_index_layout)
+
+        # End index
+        end_index_layout = QHBoxLayout()
+        end_index_label = QLabel("End index:")
+        self.end_index_spin = QSpinBox()
+        end_index_layout.addWidget(end_index_label)
+        end_index_layout.addWidget(self.end_index_spin)
+        layout.addLayout(end_index_layout)
+
+        # Randomize questions
+        self.randomize_order = QCheckBox("Randomize question order")
+        layout.addWidget(self.randomize_order)
+
+        # Seed
+        seed_layout = QHBoxLayout()
+        seed_label = QLabel("Random seed:")
+        self.seed_spin = QSpinBox()
+        seed_layout.addWidget(seed_label)
+        seed_layout.addWidget(self.seed_spin)
+        layout.addLayout(seed_layout)
         
         # Output options
         self.generate_pdf_cb = QCheckBox("Generate PDF")
@@ -155,9 +183,13 @@ class MainWindow(QMainWindow):
             # Read questions and generate variants
             df = read_questions(self.input_path)
             variants = generate_exam_variants(
-                df,
-                self.variants_spin.value(),
-                self.max_questions_spin.value()
+                df=df,
+                num_variants=self.variants_spin.value(),
+                max_questions=self.max_questions_spin.value(),
+                randomize_order=self.randomize_order.isChecked(),
+                seed=self.seed_spin.value(),
+                start_index=self.start_index_spin.value(),
+                end_index=self.end_index_spin.value()
             )
             filename = format_title(self.input_path)
 
