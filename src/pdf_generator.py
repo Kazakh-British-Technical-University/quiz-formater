@@ -15,7 +15,7 @@ def generate_pdf(tex_path: str, config: configparser.ConfigParser, engine: str =
         Path to the generated PDF file
     """
     # Get output directory from config
-    output_dir = config['DEFAULT']['output_dir']
+    output_dir = config['DEFAULT']['output_dir'] + '/pdf'
     os.makedirs(output_dir, exist_ok=True)
     
     # Build command based on engine
